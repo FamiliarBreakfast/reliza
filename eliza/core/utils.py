@@ -1,7 +1,4 @@
-import re
 from difflib import SequenceMatcher
-from typing import List
-from discord import Emoji, User
 
 def anti_spam(messages, threshold=0.8):
     to_remove = []
@@ -14,41 +11,14 @@ def anti_spam(messages, threshold=0.8):
     messages = [messages[i] for i in range(len(messages)) if i not in to_remove]
     return messages, len(to_remove)
 
-def replace_emojis_pings(text: str, users: List[User], emojis: List[Emoji]) -> str:
-    # sort users from largest username to smallest
-    users.sort(key=lambda user: len(user.name), reverse=True)
-
-    for user in users:
-        if f'@{user.name}' in text:
-            text = text.replace(f'@{user.name}', f'<@{user.id}>')
-
-    for emoji in emojis:
-        text = text.replace(f':{emoji.name}:', f'<:{emoji.name}:{emoji.id}>')
-    
-    # remove any remaining text enclosed in colons
-    text = re.sub(r':\S+:', '', text)
-    # remove any excess spaces
-    text = re.sub(r'\s+', ' ', text)
-    
-    return text
-
-def replace_emojis_pings_inverse(text: str, users: List[User], emojis: List[Emoji]) -> str:
-    for user in users:
-        text = text.replace(f'<@{user.id}>', f'@{user.name}')
-
-    for emoji in emojis:
-        text = text.replace(f'<:{emoji.name}:{emoji.id}>', f':{emoji.name}:')
-    
-    return text
-
 def standardize_punctuation(text):
     text = text.replace("’", "'")
     text = text.replace("`", "'")
     text = text.replace("“", '"')
-    text = text.replace("”", '"')
+    text = text.replace("”", '"')#todo: regexify
     return text
 
-def fix_trailing_quotes(text):
+def fix_trailing_quotes(text):#optimize
     num_quotes = text.count('"')
     if num_quotes % 2 == 0:
         return text
@@ -57,7 +27,7 @@ def fix_trailing_quotes(text):
 
 def cut_trailing_sentence(text):
     text = standardize_punctuation(text)
-    last_punc = max(text.rfind("."), text.rfind("!"), text.rfind("?"), text.rfind(".\""), text.rfind("!\""), text.rfind("?\""), text.rfind(".\'"), text.rfind("!\'"), text.rfind("?\'"))
+    last_punc = max(text.rfind("."), text.rfind("!"), text.rfind("?"), text.rfind(".\""), text.rfind("!\""), text.rfind("?\""), text.rfind(".\'"), text.rfind("!\'"), text.rfind("?\'"))#todo: regexify
     if last_punc <= 0:
         last_punc = len(text) - 1
     et_token = text.find("<")
