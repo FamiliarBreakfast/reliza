@@ -17,7 +17,7 @@ This is a fork of Eliza aimed for use on Reddit. It does **not** require sukima!
 
 ## Introduction
 
-rELIZA is a framework that provides all of the essentials necessary to build an open-domain chatbot capable of fulfilling basic needs in natural language. This repo holds our implementation for these essentials, including modules that perform core NLP, context building, and more.
+rELIZA is a framework that provides all of the essentials necessary to build an open-domain chatbot capable of fulfilling basic needs in natural language. This repo holds an implementation for these essentials, including modules that perform core NLP, context building, and more.
 
 ## Setup
 

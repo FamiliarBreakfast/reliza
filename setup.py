@@ -4,7 +4,7 @@ with open('README.md', 'r', encoding='utf-8') as f:
     long_description = f.read()
 
 setuptools.setup(
-    name='eliza',
+    name='reliza',
     version='0.1.0',
     author='haru',
     description='A versatile framework to build open-domain conversational AI.',
