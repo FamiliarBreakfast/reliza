@@ -1,0 +1,26 @@
+{
+	"name": "Generative Pre-trained Transformer Bot",
+	"task": "conversational",
+	"client": {
+		"platform": "reddit",
+		"client_id": "",
+		"client_secret": "",
+		"username": "",
+		"password": ""
+	},
+	"provider": {
+		"platform": "transformers",
+		"tokenizer": "gpt2",
+		"model": "gpt2",
+		"args": {
+			"length": "128",
+			"temperature": "0.7",
+			"top_p": "0.9",
+			"top_k": "40",
+			"no_repeat_ngram_size": "2",
+			"num_return_sequences": "1",
+			"no_early_stop": "True"
+		},
+		"classifier": "bert-base-uncased"
+	}
+}
