@@ -19,6 +19,13 @@ This is a fork of Eliza aimed for use on Reddit. It does **not** require sukima!
 
 rELIZA is a framework that provides all of the essentials necessary to build an open-domain chatbot capable of fulfilling basic needs in natural language. This repo holds an implementation for these essentials, including modules that perform core NLP, context building, and more.
 
+## Requirements
+
+For rELIZA to function, you need at least on of:
+
+- Huggingface Transformers (+pytorch/tensorflow)
+- Facebook ParlAI
+
 ## Setup
 
 Then, you will have to clone and setup rELIZA by running these commands:
@@ -27,7 +34,7 @@ Then, you will have to clone and setup rELIZA by running these commands:
 
 ``$ cd reliza``
 
-``$ pip install -r requirements.txt``
+``$ pip install .``
 
 ## Configuration
 
@@ -39,6 +46,6 @@ Then finally, to run the chatbot, all you would need to do is to run this comman
 
 ``$ python reliza --config=config/reddit_default.json``
 
-
 ### License
+
 [GNU Public License version 2.0](LICENSE)
