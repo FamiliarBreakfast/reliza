@@ -1,4 +1,3 @@
-from core.args import parse
 from core.logging import get_logger
 from client.bot import TerminalBot, RedditBot
 
@@ -31,7 +30,7 @@ def parse():
 	)
 	return parser.parse_args()
 
-def config(args):
+def load(args):
 	with open(args.config, encoding='utf-8') as f:
 		return json.load(f)
 
@@ -39,22 +38,10 @@ def main():
 	logger.info('Initializing rELIZA...')
 
 	logger.info('Loading config...')
-	config = config(parse())
+	config = load(parse())
 	bot = None
 	exit_code = 0
 	try:
-		logger.info('Getting model provider...')
-		if 'model_provider' not in config:
-			raise Exception('model_provider is not specified in config file.')
-		if config["model_provider"]["name"] == "sukima":
-			raise Exception('sukima is not supported. Use eliza instead.')
-		if config["model_provider"]["name"] == "huggingface" or config["model_provider"]["name"] == "transformers":
-			logger.info('Using huggingface model provider')
-		if config["model_provider"]["name"] == "parlai":
-			logger.info('Using parlai model provider')
-		else:
-			raise Exception('model_provider is not supported.')
-
 		if config['client']['platform'] == 'terminal':
 			bot = TerminalBot(
 							name=config['name'],
@@ -95,8 +82,6 @@ def main():
 		exit_code = 1
 	finally:
 		logger.info('Exiting...')
-		if bot is not None:
-			bot.close()
 		sys.exit(exit_code)
 
 if __name__ == '__main__':

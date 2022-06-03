@@ -24,7 +24,7 @@ rELIZA is a framework that provides all of the essentials necessary to build an 
 For rELIZA to function, you need at least on of:
 
 - Huggingface Transformers (+pytorch/tensorflow)
-- Facebook ParlAI
+- Facebook ParlAI (not yet, sorry)
 
 ## Setup
 
