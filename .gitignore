@@ -126,6 +126,8 @@ venv.bak/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+#^^ ok doesn't this kindof look like dumpy.json?
+#no dumpy jasons in MY git repositories!!
 
 # Pyre type checker
 .pyre/

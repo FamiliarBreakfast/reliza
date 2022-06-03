@@ -1,6 +1,6 @@
 from difflib import SequenceMatcher
 
-def anti_spam(messages, threshold=0.8):
+def anti_spam(messages, threshold=0.8):#98% sure we dont need this
     to_remove = []
     for i in range(len(messages)):
         for j in range(i+1, len(messages)):

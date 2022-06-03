@@ -7,3 +7,5 @@ class Bot:
     def run(self):
         raise NotImplementedError
 
+class RedditBot(Bot):
+	pass
