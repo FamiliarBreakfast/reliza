@@ -1,7 +1,5 @@
 from random import random
-from click import password_option
 import praw
-from transformers import UNISPEECH_PRETRAINED_MODEL_ARCHIVE_LIST
 from core.logging import get_logger
 logger = get_logger(__name__)
 
@@ -16,16 +14,18 @@ class Generator:
 		elif self.platform == 'huggingface' or self.platform == 'transformers':
 			logger.info('Using huggingface model provider...')
 			if model in ['gpt', 'gpt2', 'gpt-neo', 'gpt-j', 'gpt-neo-x']:
-				logger.info('Using GPT model...')
+				logger.info('Using default GPT model...')
 				from transformers import AutoTokenizer, AutoModelForCausalLM
 				self.tokenizer = AutoTokenizer.from_pretrained(tokenizer)
 				self.model = AutoModelForCausalLM.from_pretrained(model)
 			else:
 				logger.info('Using user-defined transformer...')
-				raise NotImplementedError('Model %s is not supported. Raise github issue.'%model)
+				from transformers import AutoTokenizer, AutoModelForCausalLM
+				self.tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+				self.model = AutoModelForCausalLM.from_pretrained(model)
 		elif self.platform == 'parlai':
 			logger.info('Using parlai model provider...')
-			raise NotImplementedError('parlai is not supported yet.')
+			raise NotImplementedError('parlai is not supported yet. please wait patiently.')
 		else:
 			raise Exception('Platform %s is not supported. Raise github issue.'%self.platform)
 
@@ -131,7 +131,7 @@ class RedditBot(Bot):
 			username=self.username
 			user_agent="rELIZA Reddit Bot"
 		)
-		
+
 		for comment in reddit.subreddit(self.subreddit).stream.comments():
 			return comment
 
