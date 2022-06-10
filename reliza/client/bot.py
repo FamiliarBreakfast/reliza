@@ -143,4 +143,4 @@ class RedditBot(Bot):
 					response = response[len(comment.body):]
 					if response is not None:
 						comment.reply(response)
-						logger.info('Replied to comment %s with %s'%comment.id, response)
+						logger.info('Replied to comment %s with %s'%(comment.id, response))
