@@ -36,7 +36,7 @@ Then, you will have to clone and setup rELIZA by running these commands:
 
 ``$ pip install .``
 
-Alternatively, one can run ``\_\_main\_\_.py`` directly if you don't want to install.
+Alternatively, one can run ``__main__.py`` directly if you don't want to install.
 
 ## Configuration
 
