@@ -1,6 +1,5 @@
 import os
 import time
-import sys
 import logging
 
 # check if log directory exists
