@@ -60,8 +60,10 @@ class Classifier():
 			sequence = text
 			logger.debug('Classifying interests for string %s...'%sequence)
 			interest_prob = classifier(sequence, self.interests, multi_label=True)
+			logger.debug(interest_prob['scores'])
 			logger.debug('Classifying detests for string %s...'%sequence)
 			detest_prob = classifier(sequence, self.detests, multi_label=True)
+			logger.debug(detest_prob['scores'])
 			if return_prob:
 				return interest_prob, detest_prob
 			else:
