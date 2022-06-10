@@ -36,15 +36,29 @@ Then, you will have to clone and setup rELIZA by running these commands:
 
 ``$ pip install .``
 
+Alternatively, one can run ``\_\_main\_\_.py`` directly if you don't want to install.
+
 ## Configuration
 
-After the setup is complete, you can use one of the default configurations listed in the ``config`` folder, or you can create your own by using the default as a template.
+After the setup is complete, you can use one of the default configurations listed in the ``config`` folder, or you can create your own by using the default as a template. Instructions are on the Github wiki page.
 
 ## Run
 
 Then finally, to run the chatbot, all you would need to do is to run this command with your selected config file.
 
 ``$ python reliza --config=config/reddit_default.json``
+
+## Todo
+
+- better reddit comment parsing (take whole convo into account)
+- toxic detection
+- tune classifier probabilities
+- implement bot postings for reddit
+- fix logging (too much garbage)
+- clean up any other garbage
+- parlai support (i wanna add blenderbot)
+- tensorflow support
+- add more options for bots
 
 ### License
 
