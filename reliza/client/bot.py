@@ -73,13 +73,11 @@ class Classifier():
 					return False
 
 class Bot:
-	def __init__(self, name, provider, tokenizer, model, classifier, intrests, detests, **kwargs):
+	def __init__(self, name, provider, tokenizer, model, classifier, intrests, detests):
 		self.name = name
 
 		self.model = Conversational(provider, tokenizer, model)
 		self.classifier = Classifier(classifier, intrests, detests)
-
-		self.kwargs = kwargs
 	
 	def run(self):
 		raise NotImplementedError
@@ -111,7 +109,8 @@ class TerminalClassifierBot(Bot):
 				break
 
 class RedditBot(Bot):
-	def __init__(self, subreddit, client_id, client_secret, username, password, flair=None, frequency=24, type="text", img_backend=None):
+	def __init__(self, name, provider, tokenizer, model, classifier, intrests, detests, subreddit, client_id, client_secret, username, password, flair=None, frequency=24, type="text", img_backend=None):
+		super(RedditBot, self).__init__(name, provider, tokenizer, model, classifier, intrests, detests)
 		self.subreddit = subreddit
 		self.client_id = client_id
 		self.client_secret = client_secret
@@ -138,9 +137,9 @@ class RedditBot(Bot):
 	def run(self):
 		while True:
 			comment = self.poll()
-			if comment is not None:
-				if Classifier.classify(comment.body):
-					response = Conversational.complete(comment.body)
+			if comment.body is not None:
+				if self.classifier.classify(comment.body):
+					response = self.model.complete(comment.body)
 					response = response[len(comment.body):]
 					if response is not None:
 						comment.reply(response)

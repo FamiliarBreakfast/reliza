@@ -74,7 +74,7 @@ def main():
 								provider=config['provider']['platform'],
 									tokenizer=config['provider']['tokenizer'],
 									model=config['provider']['model'],
-									args=config['provider']['args'],
+									#args=config['provider']['args'], sort this shit out later
 								subreddit=config['client']['subreddit'],
 								client_id=config['client']['auth']['client_id'],
 								client_secret=config['client']['auth']['client_secret'],
