@@ -125,10 +125,10 @@ class RedditBot(Bot):
 
 	def poll(self):
 		reddit = praw.Reddit(
-			client_id=self.client_id
-			client_secret=self.client_secret
-			password=self.password
-			username=self.username
+			client_id=self.client_id,
+			client_secret=self.client_secret,
+			password=self.password,
+			username=self.username,
 			user_agent="rELIZA Reddit Bot"
 		)
 
