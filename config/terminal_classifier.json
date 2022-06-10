@@ -1,6 +1,6 @@
 {
-	"name": "One-on-One Pretrained Transformers Chatbot",
-	"task": "one-on-one",
+	"name": "Classification test",
+	"task": "classification",
 	"client": {
 		"platform": "terminal"
 	},
@@ -17,5 +17,10 @@
 			"num_return_sequences": "1",
 			"no_early_stop": "True"
 		}
+	},
+	"classifier": {
+		"model": "valhalla/distilbart-mnli-12-1",
+		"intrests": ["science", "microbiology", "archeology", "shock", "contradiction"],
+		"detests": ["explicit", "violent"]
 	}
 }

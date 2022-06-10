@@ -1,5 +1,5 @@
 from core.logging import get_logger
-from client.bot import TerminalBot, RedditBot
+from client.bot import TerminalBot, TerminalClassifierBot, RedditBot
 
 import sys
 import json
@@ -42,37 +42,56 @@ def main():
 	bot = None
 	exit_code = 0
 	try:
-		if config['client']['platform'] == 'terminal':
-			bot = TerminalBot(
-							name=config['name'],
-							task=config['task'],
-							provider=config['provider']['platform'],
-								tokenizer=config['provider']['tokenizer'],
-								model=config['provider']['model'],
-								args=config['provider']['args'],
-								classifier=config['provider']['classifier']
-							)
-			logger.info('Starting %s with the terminal as the client...'%config['name'])
-			bot.run()
-		elif config['client']['platform'] == 'reddit':
-			bot = RedditBot(
-							name=config['name'], 
-							task=config['task'],
-							client=config['client']['platform'],
-								client_id=config['client']['client_id'],
-								client_secret=config['client']['client_secret'],
-								username=config['client']['username'],
-								password=config['client']['password'],
-							provider=config['provider']['platform'],
-								tokenizer=config['provider']['tokenizer'],
-								model=config['provider']['model'],
-								args=config['provider']['args'],
-								classifier=config['provider']['classifier']
-							)
-			logger.info('Starting %s with the reddit client...'%config['name'])
-			bot.run()
-		else:
-			raise Exception('unsupported client')
+		if config['task'] == 'one-on-one':
+			if config['client']['platform'] == 'terminal':
+				bot = TerminalBot(
+								name=config['name'],
+								provider=config['provider']['platform'],
+									tokenizer=config['provider']['tokenizer'],
+									model=config['provider']['model'],
+									args=config['provider']['args']
+								)
+				logger.info('Starting %s with the terminal as the client...'%config['name'])
+				bot.run()
+		elif config['task'] == 'classification':
+			if config['client']['platform'] == 'terminal':
+				bot = TerminalClassifierBot(
+								name=config['name'],
+								provider=config['provider']['platform'],
+									tokenizer=config['provider']['tokenizer'],
+									model=config['provider']['model'],
+									args=config['provider']['args'],
+								classifier=config['classifier']['model'],
+									intrests=config['classifier']['intrests'],
+									detests=config['classifier']['detests']
+								)
+				logger.info('Starting %s with the terminal as the client...'%config['name'])
+				bot.run()
+		elif config['task'] == 'conversational':
+			if config['client']['platform'] == 'reddit':
+				bot = RedditBot(
+								name=config['name'],
+								provider=config['provider']['platform'],
+									tokenizer=config['provider']['tokenizer'],
+									model=config['provider']['model'],
+									args=config['provider']['args'],
+								subreddit=config['client']['subreddit'],
+								client_id=config['client']['auth']['client_id'],
+								client_secret=config['client']['auth']['client_secret'],
+								username=config['client']['auth']['username'],
+								password=config['client']['auth']['password'],
+									frequency=config['client']['post']['frequency'],
+									flair=config['client']['post']['flair'],
+									type=config['client']['post']['type'],
+									img_backend=config['client']['post']['img_backend'],
+								classifier=config['classifier']['model'],
+									intrests=config['classifier']['intrests'],
+									detests=config['classifier']['detests']
+								)
+				logger.info('Starting %s with the reddit client...'%config['name'])
+				bot.run()
+			else:
+				raise Exception('unsupported client')
 	except KeyboardInterrupt:
 		print('Exiting...')
 		exit_code = 0

@@ -1,12 +1,21 @@
 {
-	"name": "Generative Pre-trained Transformer Bot",
-	"task": "conversational",
+	"name": "Zero-Shot Classified Transformers Chatbot",
+	"task": "discussional",
 	"client": {
 		"platform": "reddit",
-		"client_id": "",
-		"client_secret": "",
-		"username": "",
-		"password": ""
+		"subreddit": "subsimgpt2interactive",
+		"post": {
+			"frequency": "24",
+			"flair": "",
+			"type": "image",
+			"img_backend": "bing"
+		},
+		"auth": {
+			"client_id": "",
+			"client_secret": "",
+			"username": "",
+			"password": ""
+		}
 	},
 	"provider": {
 		"platform": "transformers",
@@ -20,7 +29,11 @@
 			"no_repeat_ngram_size": "2",
 			"num_return_sequences": "1",
 			"no_early_stop": "True"
-		},
-		"classifier": "bert-base-uncased"
+		}
+	},
+	"classifier": {
+		"model": "distilbart-mnli-12-1",
+		"intrests": ["scientific discovery", "microbiology", "archeology"],
+		"detests": ["artificial intelligence", "explicit", "contradiction"]
 	}
 }

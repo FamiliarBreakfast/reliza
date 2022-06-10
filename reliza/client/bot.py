@@ -1,3 +1,4 @@
+from random import random
 from core.logging import get_logger
 logger = get_logger(__name__)
 
@@ -12,10 +13,12 @@ class Generator:
 		elif self.platform == 'huggingface' or self.platform == 'transformers':
 			logger.info('Using huggingface model provider...')
 			if model in ['gpt', 'gpt2', 'gpt-neo', 'gpt-j', 'gpt-neo-x']:
+				logger.info('Using GPT model...')
 				from transformers import AutoTokenizer, AutoModelForCausalLM
 				self.tokenizer = AutoTokenizer.from_pretrained(tokenizer)
 				self.model = AutoModelForCausalLM.from_pretrained(model)
 			else:
+				logger.info('Using user-defined transformer...')
 				raise NotImplementedError('Model %s is not supported. Raise github issue.'%model)
 		elif self.platform == 'parlai':
 			logger.info('Using parlai model provider...')
@@ -24,7 +27,7 @@ class Generator:
 			raise Exception('Platform %s is not supported. Raise github issue.'%self.platform)
 
 class Conversational(Generator):
-	def generate(self, text, args={'max_length': 128, 'temperature': 0.7, 'do_sample': True}):
+	def complete(self, text, args={'max_length': 128, 'temperature': 0.7, 'do_sample': True}):
 		if self.platform == 'sukima':
 			raise Exception('sukima is not supported. Use eliza instead.')
 		if self.platform == 'huggingface' or self.platform == 'transformers':
@@ -39,31 +42,95 @@ class Conversational(Generator):
 		else:
 			raise Exception('Platform %s is not supported. Raise github issue.'%self.platform)
 
+class Classifier():
+	def __init__(self, model=None, intrests=None, detests=None):
+		self.model = model
+		self.intrests = intrests
+		self.detests = detests
+
+	def classify(self, text, return_prob=False):
+		if self.model == None:
+			logger.debug('No classifier is specified. Using mode echo...')
+		else:
+			from transformers import pipeline
+			classifier = pipeline("zero-shot-classification", self.model)
+			sequence = text
+			logger.debug('Classifying intrests for string %s...'%sequence)
+			intrest_prob = classifier(sequence, self.intrests, multi_label=True)
+			logger.debug('Classifying detests for string %s...'%sequence)
+			detest_prob = classifier(sequence, self.detests, multi_label=True)
+			if return_prob:
+				return intrest_prob, detest_prob
+			else:
+				if sum(detest_prob['scores']) > sum(intrest_prob['scores']):
+					return False
+				elif sum(intrest_prob['scores']) > random():
+					return True
+				else:
+					return False
+
 class Bot:
-	def __init__(self, name, task, provider, **kwargs):
+	def __init__(self, name, provider, tokenizer, model, classifier, intrests, detests, **kwargs):
 		self.name = name
-		self.task = task
-		self.provider = provider
+
+		self.model = Conversational(provider, tokenizer, model)
+		self.classifier = Classifier(classifier, intrests, detests)
+
 		self.kwargs = kwargs
 	
 	def run(self):
 		raise NotImplementedError
 
 class TerminalBot(Bot):
-	def __init__(self, name, **kwargs):
-		self.model = Conversational(kwargs['provider'], kwargs['tokenizer'], kwargs['model'])
 	def run(self):
 		while True:
 			try:
 				uinput = input("Write something: ")
 				print(uinput)
-				response = self.model.generate(uinput)
+				response = self.model.complete(uinput)
 				print(response)
 			except KeyboardInterrupt:
 				print('\nBye!')
 				break
 
+class TerminalClassifierBot(Bot):
+	def run(self):
+		while True:
+			try:
+				uinput = input("Write something: ")
+				print(uinput)
+				probability = self.classifier.classify(uinput, return_prob=True)
+				print("Raw probabilities: ", probability)
+				tf = self.classifier.classify(uinput)
+				print("Would respond: ", tf)
+			except KeyboardInterrupt:
+				print('\nBye!')
+				break
+
 class RedditBot(Bot):
-	def __init__(self, name, **kwargs):
+	def __init__(self, subreddit, client_id, client_secret, username, password, flair=None, frequency=24, type="text", img_backend=None):
+		self.subreddit = subreddit
+		self.client_id = client_id
+		self.client_secret = client_secret
+		self.username = username
+		self.password = password
+
+		self.flair = flair
+		self.frequency = frequency
+		self.type = type
+		self.img_backend = img_backend
+
+	def poll(self):
 		pass
-	pass
+
+	def run(self):
+		while True:
+			submission = self.poll()
+			if submission is not None:
+				for comment in submission:
+					if Classifier.classify(comment.body):
+						response = Conversational.complete(comment.body)
+						response = response[len(comment.body):]
+						if response is not None:
+							comment.reply(response)
+							logger.info('Replied to comment %s with %s'%comment.id, response)
