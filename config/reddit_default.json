@@ -1,6 +1,6 @@
 {
 	"name": "Zero-Shot Classified Transformers Chatbot",
-	"task": "discussional",
+	"task": "conversational",
 	"client": {
 		"platform": "reddit",
 		"subreddit": "subsimgpt2interactive",
