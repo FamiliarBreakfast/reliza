@@ -62,7 +62,7 @@ def main():
 									model=config['provider']['model'],
 									args=config['provider']['args'],
 								classifier=config['classifier']['model'],
-									intrests=config['classifier']['intrests'],
+									interests=config['classifier']['interests'],
 									detests=config['classifier']['detests']
 								)
 				logger.info('Starting %s with the terminal as the client...'%config['name'])
@@ -85,7 +85,7 @@ def main():
 									type=config['client']['post']['type'],
 									img_backend=config['client']['post']['img_backend'],
 								classifier=config['classifier']['model'],
-									intrests=config['classifier']['intrests'],
+									interests=config['classifier']['interests'],
 									detests=config['classifier']['detests']
 								)
 				logger.info('Starting %s with the reddit client...'%config['name'])

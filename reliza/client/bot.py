@@ -46,9 +46,9 @@ class Conversational(Generator):
 			raise Exception('Platform %s is not supported. Raise github issue.'%self.platform)
 
 class Classifier():
-	def __init__(self, model=None, intrests=None, detests=None):
+	def __init__(self, model=None, interests=None, detests=None):
 		self.model = model
-		self.intrests = intrests
+		self.interests = interests
 		self.detests = detests
 
 	def classify(self, text, return_prob=False):
@@ -58,8 +58,8 @@ class Classifier():
 			from transformers import pipeline
 			classifier = pipeline("zero-shot-classification", self.model)
 			sequence = text
-			logger.debug('Classifying intrests for string %s...'%sequence)
-			intrest_prob = classifier(sequence, self.intrests, multi_label=True)
+			logger.debug('Classifying interests for string %s...'%sequence)
+			intrest_prob = classifier(sequence, self.interests, multi_label=True)
 			logger.debug('Classifying detests for string %s...'%sequence)
 			detest_prob = classifier(sequence, self.detests, multi_label=True)
 			if return_prob:
@@ -73,11 +73,11 @@ class Classifier():
 					return False
 
 class Bot:
-	def __init__(self, name, provider, tokenizer, model, classifier, intrests, detests):
+	def __init__(self, name, provider, tokenizer, model, classifier, interests, detests):
 		self.name = name
 
 		self.model = Conversational(provider, tokenizer, model)
-		self.classifier = Classifier(classifier, intrests, detests)
+		self.classifier = Classifier(classifier, interests, detests)
 	
 	def run(self):
 		raise NotImplementedError
@@ -109,8 +109,8 @@ class TerminalClassifierBot(Bot):
 				break
 
 class RedditBot(Bot):
-	def __init__(self, name, provider, tokenizer, model, classifier, intrests, detests, subreddit, client_id, client_secret, username, password, flair=None, frequency=24, type="text", img_backend=None):
-		super(RedditBot, self).__init__(name, provider, tokenizer, model, classifier, intrests, detests)
+	def __init__(self, name, provider, tokenizer, model, classifier, interests, detests, subreddit, client_id, client_secret, username, password, flair=None, frequency=24, type="text", img_backend=None):
+		super(RedditBot, self).__init__(name, provider, tokenizer, model, classifier, interests, detests)
 		self.subreddit = subreddit
 		self.client_id = client_id
 		self.client_secret = client_secret

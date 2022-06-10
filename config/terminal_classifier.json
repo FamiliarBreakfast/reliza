@@ -20,7 +20,7 @@
 	},
 	"classifier": {
 		"model": "valhalla/distilbart-mnli-12-1",
-		"intrests": ["science", "microbiology", "archeology", "shock", "contradiction"],
+		"interests": ["science", "microbiology", "archeology", "shock", "contradiction"],
 		"detests": ["explicit", "violent"]
 	}
 }
