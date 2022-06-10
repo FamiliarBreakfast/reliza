@@ -59,15 +59,15 @@ class Classifier():
 			classifier = pipeline("zero-shot-classification", self.model)
 			sequence = text
 			logger.debug('Classifying interests for string %s...'%sequence)
-			intrest_prob = classifier(sequence, self.interests, multi_label=True)
+			interest_prob = classifier(sequence, self.interests, multi_label=True)
 			logger.debug('Classifying detests for string %s...'%sequence)
 			detest_prob = classifier(sequence, self.detests, multi_label=True)
 			if return_prob:
-				return intrest_prob, detest_prob
+				return interest_prob, detest_prob
 			else:
-				if sum(detest_prob['scores']) > sum(intrest_prob['scores']):
+				if sum(detest_prob['scores']) > sum(interest_prob['scores']):
 					return False
-				elif sum(intrest_prob['scores']) > random():
+				elif sum(interest_prob['scores']) > random():
 					return True
 				else:
 					return False
