@@ -75,8 +75,9 @@ class Classifier():
 					return False
 
 class Bot:
-	def __init__(self, name, provider, tokenizer, model, classifier, interests, detests):
+	def __init__(self, name, provider, tokenizer, model, classifier, interests, detests, **kwargs):
 		self.name = name
+		self.kwargs = kwargs
 
 		self.model = Conversational(provider, tokenizer, model)
 		self.classifier = Classifier(classifier, interests, detests)
