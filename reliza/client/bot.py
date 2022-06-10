@@ -131,7 +131,7 @@ class RedditBot(Bot):
 			user_agent="rELIZA Reddit Bot"
 		)
 
-		for comment in reddit.subreddit(self.subreddit).stream.comments():
+		for comment in reddit.subreddit(self.subreddit).stream.comments(skip_existing=True):
 			return comment
 
 	def run(self):
