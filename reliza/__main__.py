@@ -49,7 +49,7 @@ def main():
 								provider=config['provider']['platform'],
 									tokenizer=config['provider']['tokenizer'],
 									model=config['provider']['model'],
-									args=config['provider']['args']
+									#args=config['provider']['args']
 								)
 				logger.info('Starting %s with the terminal as the client...'%config['name'])
 				bot.run()
@@ -60,7 +60,7 @@ def main():
 								provider=config['provider']['platform'],
 									tokenizer=config['provider']['tokenizer'],
 									model=config['provider']['model'],
-									args=config['provider']['args'],
+									#args=config['provider']['args'],
 								classifier=config['classifier']['model'],
 									interests=config['classifier']['interests'],
 									detests=config['classifier']['detests']
