@@ -1,4 +1,7 @@
 from random import random
+from click import password_option
+import praw
+from transformers import UNISPEECH_PRETRAINED_MODEL_ARCHIVE_LIST
 from core.logging import get_logger
 logger = get_logger(__name__)
 
@@ -121,16 +124,24 @@ class RedditBot(Bot):
 		self.img_backend = img_backend
 
 	def poll(self):
-		pass
+		reddit = praw.Reddit(
+			client_id=self.client_id
+			client_secret=self.client_secret
+			password=self.password
+			username=self.username
+			user_agent="rELIZA Reddit Bot"
+		)
+		
+		for comment in reddit.subreddit(self.subreddit).stream.comments():
+			return comment
 
 	def run(self):
 		while True:
-			submission = self.poll()
-			if submission is not None:
-				for comment in submission:
-					if Classifier.classify(comment.body):
-						response = Conversational.complete(comment.body)
-						response = response[len(comment.body):]
-						if response is not None:
-							comment.reply(response)
-							logger.info('Replied to comment %s with %s'%comment.id, response)
+			comment = self.poll()
+			if comment is not None:
+				if Classifier.classify(comment.body):
+					response = Conversational.complete(comment.body)
+					response = response[len(comment.body):]
+					if response is not None:
+						comment.reply(response)
+						logger.info('Replied to comment %s with %s'%comment.id, response)
