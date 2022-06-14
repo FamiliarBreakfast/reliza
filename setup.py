@@ -8,7 +8,7 @@ setuptools.setup(
     version='0.1.0',
     author='haru+familiarbreakfast',
     description='A versatile framework to build open-domain conversational AI.',
-    long_description=long_description,
+    long_description='A fork of Eliza targeted for use with reddit. Sponsored by Theseus.',
     long_description_content_type='text/markdown',
     url='https://github.com/familiarbreakfast/reliza',
     packages=setuptools.find_packages(),

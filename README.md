@@ -23,8 +23,8 @@ rELIZA is a framework that provides all of the essentials necessary to build an 
 
 For rELIZA to function, you need at least on of:
 
-- Huggingface Transformers (+pytorch/tensorflow)
-- Facebook ParlAI (not yet, sorry)
+- Huggingface Transformers (+pytorch/tensorflow) [tensorflow not yet supported, sorry]
+- Facebook ParlAI (not yet either, sorry)
 
 ## Setup
 
@@ -36,7 +36,7 @@ Then, you will have to clone and setup rELIZA by running these commands:
 
 ``$ pip install .``
 
-Alternatively, one can run ``__main__.py`` directly if you don't want to install.
+Alternatively, one can run ``__main__.py`` directly if you don't want to install it.
 
 ## Configuration
 
