@@ -26,7 +26,6 @@ def fix_trailing_quotes(text):#optimize
         return text + '"'
 
 def cut_trailing_sentence(text):
-    text = standardize_punctuation(text)
     last_punc = max(text.rfind("."), text.rfind("!"), text.rfind("?"), text.rfind(".\""), text.rfind("!\""), text.rfind("?\""), text.rfind(".\'"), text.rfind("!\'"), text.rfind("?\'"))#todo: regexify
     if last_punc <= 0:
         last_punc = len(text) - 1
@@ -34,7 +33,6 @@ def cut_trailing_sentence(text):
     if et_token > 0:
         last_punc = min(last_punc, et_token - 1)
     text = text[: last_punc + 1]
-    text = fix_trailing_quotes(text)
     return text
 
 def strip_negative_keywords(text, keywords):
