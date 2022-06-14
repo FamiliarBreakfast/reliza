@@ -1,59 +1,54 @@
 from random import random
+from xml.dom import NotSupportedErr
 import praw
 from core.logging import get_logger
 logger = get_logger(__name__)
 
 class Generator:
+	def __init__(self, platform):
+		self.platform = platform # this is stupid but i might use it in the future
+
+class GeneratorHuggingface(Generator):
 	def __init__(self, platform, tokenizer, model):
-		self.platform = platform
+		super().__init__(platform)
 		self.tokenizer = tokenizer
 		self.model = model
 
-		if self.platform == 'sukima':
-			raise Exception('sukima is not supported. Use eliza instead.')
-		elif self.platform == 'huggingface' or self.platform == 'transformers':
-			logger.info('Using huggingface model provider...')
-			if model in ['gpt', 'gpt2', 'gpt-neo', 'gpt-j', 'gpt-neo-x']:
-				logger.info('Using default GPT model...')
-				from transformers import AutoTokenizer, AutoModelForCausalLM
-				self.tokenizer = AutoTokenizer.from_pretrained(tokenizer)
-				self.model = AutoModelForCausalLM.from_pretrained(model)
-			else:
-				logger.info('Using user-defined transformer...')
-				from transformers import AutoTokenizer, AutoModelForCausalLM
-				self.tokenizer = AutoTokenizer.from_pretrained(tokenizer)
-				self.model = AutoModelForCausalLM.from_pretrained(model)
-		elif self.platform == 'parlai':
-			logger.info('Using parlai model provider...')
-			raise NotImplementedError('parlai is not supported yet. please wait patiently.')
+		if 'gpt' in model:
+			logger.info('Using GPT transformer...') # todo: stuff
+		elif 'bert' in model:
+			logger.info('Using BERT transformer...')
 		else:
-			raise Exception('Platform %s is not supported. Raise github issue.'%self.platform)
+			logger.info('Using custom transformer...')
 
-class Conversational(Generator):
+		from transformers import AutoTokenizer, AutoModelForCausalLM
+		self.tokenizer = AutoTokenizer.from_pretrained(tokenizer)
+		self.model = AutoModelForCausalLM.from_pretrained(model)
+
 	def complete(self, text, args={'max_length': 128, 'temperature': 0.7, 'do_sample': True}):
-		if self.platform == 'sukima':
-			raise Exception('sukima is not supported. Use eliza instead.')
-		if self.platform == 'huggingface' or self.platform == 'transformers':
-			input_ids = self.tokenizer(text, return_tensors='pt').input_ids #todo: tensorflow
-			logger.debug('Completing text for string %s...'%text)
-			output = self.model.generate(input_ids, **args)
-			output = ''.join(self.tokenizer.batch_decode(output[0]))
-			logger.debug('Finished test for string %s: %s'%(text, output))
-			return output
-		if self.platform == 'parlai':
-			raise NotImplementedError('parlai is not supported yet.')
-		else:
-			raise Exception('Platform %s is not supported. Raise github issue.'%self.platform)
+		input_ids = self.tokenizer(text, return_tensors='pt').input_ids # todo: tensorflow
+		logger.debug('Completing text for string %s...'%text)
+		output = self.model.generate(input_ids, **args)
+		output = ''.join(self.tokenizer.batch_decode(output[0]))
+		logger.debug('Finished test for string %s: %s'%(text, output))
+		return output
+
+class GeneratorParlai(Generator):
+	pass # pylance freaks out if i put an exception here
 
 class Classifier():
-	def __init__(self, model=None, interests=None, detests=None):
+	def classify(self):
+		return True
+
+class ZeroShot(Classifier):
+	def __init__(self, model=None, interests=['positive'], detests=['negative']):
 		self.model = model
 		self.interests = interests
 		self.detests = detests
-
-	def classify(self, text, return_prob=False):
+	
+	def classify(self, text, **kwargs):
 		if self.model == None:
-			logger.debug('No classifier is specified. Using mode echo...')
+			raise Exception('No model specified.')
 		else:
 			from transformers import pipeline
 			classifier = pipeline("zero-shot-classification", self.model)
@@ -64,23 +59,43 @@ class Classifier():
 			logger.debug('Classifying detests for string %s...'%sequence)
 			detest_prob = classifier(sequence, self.detests, multi_label=True)
 			logger.debug(detest_prob['scores'])
-			if return_prob:
-				return interest_prob, detest_prob
-			else:
-				if sum(detest_prob['scores']) > sum(interest_prob['scores']):
-					return False
-				elif sum(interest_prob['scores']) > random():
-					return True
+			rand = random()
+			if 'return_prob' in kwargs and kwargs['return_prob']:
+				if 'return_rand' in kwargs and kwargs['return_rand']:
+						return interest_prob, detest_prob, rand
 				else:
-					return False
+					return interest_prob, detest_prob
+			if sum(detest_prob['scores']) > sum(interest_prob['scores']):
+				return False
+			elif sum(interest_prob['scores']) > rand:
+				return True
+			else:
+				return False
 
 class Bot:
-	def __init__(self, name, provider, tokenizer, model, classifier, interests, detests, **kwargs):
-		self.name = name
+	def __init__(self, task, mode, platform, **kwargs):
 		self.kwargs = kwargs
+		self.task = task
 
-		self.model = Conversational(provider, tokenizer, model)
-		self.classifier = Classifier(classifier, interests, detests)
+		self.mode = mode
+		if mode == 'none':
+			self.classifier = Classifier()
+		if mode == 'zero-shot':
+			self.classifier = ZeroShot(kwargs['classifier'], kwargs['interests'], kwargs['detests'])
+
+		self.platform = platform
+		if self.platform == 'sukima':
+			raise NotImplementedError('sukima is not supported. Use eliza instead.') # im pretty sure im using NotImplementedError wrong, is that bad?
+		elif self.platform == 'huggingface' or platform == 'transformers':
+			logger.info('Using huggingface model provider...')
+			self.model = GeneratorHuggingface(self.platform, kwargs['tokenizer'], kwargs['model'])
+		elif self.platform == 'parlai':
+			logger.info('Using parlai model provider...')
+			raise NotImplementedError('parlai is not supported yet. Please wait patiently.')
+		elif self.platform == 'none':
+			logger.info('Using None model provider. Text generation will be disabled.')
+		else:
+			raise Exception('Platform %s is not supported. Raise github issue.'%self.platform)
 	
 	def run(self):
 		raise NotImplementedError
@@ -90,7 +105,6 @@ class TerminalBot(Bot):
 		while True:
 			try:
 				uinput = input("Write something: ")
-				print(uinput)
 				response = self.model.complete(uinput)
 				print(response)
 			except KeyboardInterrupt:
@@ -102,8 +116,7 @@ class TerminalClassifierBot(Bot):
 		while True:
 			try:
 				uinput = input("Write something: ")
-				print(uinput)
-				probability = self.classifier.classify(uinput, return_prob=True)
+				probability = self.classifier.classify(uinput, return_prob=True, return_rand=True)
 				print("Raw probabilities: ", probability)
 				tf = self.classifier.classify(uinput)
 				print("Would respond: ", tf)
@@ -112,18 +125,13 @@ class TerminalClassifierBot(Bot):
 				break
 
 class RedditBot(Bot):
-	def __init__(self, name, provider, tokenizer, model, classifier, interests, detests, subreddit, client_id, client_secret, username, password, flair=None, frequency=24, type="text", img_backend=None):
-		super(RedditBot, self).__init__(name, provider, tokenizer, model, classifier, interests, detests)
+	def __init__(self, task, mode, platform, subreddit, client_id, client_secret, username, password, **kwargs):
+		super().__init__(task, mode, platform, **kwargs)
 		self.subreddit = subreddit
 		self.client_id = client_id
 		self.client_secret = client_secret
 		self.username = username
 		self.password = password
-
-		self.flair = flair
-		self.frequency = frequency
-		self.type = type
-		self.img_backend = img_backend
 
 	def poll(self):
 		reddit = praw.Reddit(

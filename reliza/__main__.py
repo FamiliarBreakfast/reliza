@@ -36,62 +36,59 @@ def load(args):
 
 def main():
 	logger.info('Initializing rELIZA...')
-
 	logger.info('Loading config...')
 	config = load(parse())
 	bot = None
 	exit_code = 0
 	try:
-		if config['task'] == 'one-on-one':
-			if config['client']['platform'] == 'terminal':
+		if 'terminal' in config['client']:
+			if config['client']['terminal']['task'] == 'one-on-one':
 				bot = TerminalBot(
-								name=config['name'],
-								provider=config['provider']['platform'],
-									tokenizer=config['provider']['tokenizer'],
-									model=config['provider']['model'],
-									#args=config['provider']['args']
-								)
-				logger.info('Starting %s with the terminal as the client...'%config['name'])
+					task=config['client']['terminal']['task'],
+					mode=config['client']['classifier']['mode'],
+					platform=config['client']['generation']['platform'],
+						tokenizer=config['client']['generation']['tokenizer'],
+						model=config['client']['generation']['model'],
+						#args=config['client']['generation']['args']
+				)
 				bot.run()
-		elif config['task'] == 'classification':
-			if config['client']['platform'] == 'terminal':
+			if config['client']['terminal']['task'] == 'classification':
 				bot = TerminalClassifierBot(
-								name=config['name'],
-								provider=config['provider']['platform'],
-									tokenizer=config['provider']['tokenizer'],
-									model=config['provider']['model'],
-									#args=config['provider']['args'],
-								classifier=config['classifier']['model'],
-									interests=config['classifier']['interests'],
-									detests=config['classifier']['detests']
-								)
-				logger.info('Starting %s with the terminal as the client...'%config['name'])
+					task=config['client']['terminal']['task'],
+					mode=config['client']['classifier']['mode'], classifier=config['client']['classifier']['model'],
+						interests=config['client']['classifier']['interests'],
+						detests=config['client']['classifier']['detests'],
+					platform=config['client']['generation']['platform']
+				)
 				bot.run()
-		elif config['task'] == 'conversational':
-			if config['client']['platform'] == 'reddit':
+			if config['client']['reddit']['task'] == 'discussion':
+				raise NotImplementedError('task discussion not supported for terminal client.')
+		elif 'reddit' in config['client']:
+			if config['client']['reddit']['task'] == 'one-on-one':
+				raise NotImplementedError('One-on-one reddit bot is not supported yet.')
+			if config['client']['reddit']['task'] == 'classification':
+				#bot = DebugClassificationBot()
+				raise Exception('Classification reddit bot is not supported yet.')
+			if config['client']['reddit']['task'] == 'discussion':
 				bot = RedditBot(
-								name=config['name'],
-								provider=config['provider']['platform'],
-									tokenizer=config['provider']['tokenizer'],
-									model=config['provider']['model'],
-									#args=config['provider']['args'], sort this shit out later
-								subreddit=config['client']['subreddit'],
-								client_id=config['client']['auth']['client_id'],
-								client_secret=config['client']['auth']['client_secret'],
-								username=config['client']['auth']['username'],
-								password=config['client']['auth']['password'],
-									frequency=config['client']['post']['frequency'],
-									flair=config['client']['post']['flair'],
-									type=config['client']['post']['type'],
-									img_backend=config['client']['post']['img_backend'],
-								classifier=config['classifier']['model'],
-									interests=config['classifier']['interests'],
-									detests=config['classifier']['detests']
-								)
-				logger.info('Starting %s with the reddit client...'%config['name'])
+					task=config['client']['reddit']['task'],
+					subreddit=config['client']['reddit']['subreddit'],
+						client_id=config['client']['reddit']['client_id'],
+						client_secret=config['client']['reddit']['client_secret'],
+						username=config['client']['reddit']['username'],
+						password=config['client']['reddit']['password'],
+					mode=config['client']['classifier']['mode'], classifier=config['client']['classifier']['model'],
+						interests=config['client']['classifier']['interests'],
+						detests=config['client']['classifier']['detests'],
+					platform=config['client']['generation']['platform'],
+						tokenizer=config['client']['generation']['tokenizer'],
+						model=config['client']['generation']['model'],
+						#args=config['client']['generation']['args']
+				)
 				bot.run()
-			else:
-				raise Exception('unsupported client')
+		else:
+			#todo: user clients
+			raise Exception('No valid client.')
 	except KeyboardInterrupt:
 		print('Exiting...')
 		exit_code = 0

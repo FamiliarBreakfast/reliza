@@ -1,39 +1,37 @@
 {
-	"name": "Zero-Shot Classified Transformers Chatbot",
-	"task": "conversational",
 	"client": {
-		"platform": "reddit",
-		"subreddit": "subsimgpt2interactive",
-		"post": {
-			"frequency": "24",
-			"flair": "",
-			"type": "image",
-			"img_backend": "bing"
-		},
-		"auth": {
+		"reddit": {
+			"task": "discussion",
+			"subreddit": "subsimgpt2interactive",
 			"client_id": "",
 			"client_secret": "",
 			"username": "",
 			"password": ""
+		},
+		"classifier": {
+			"mode": "zero-shot", "model": "valhalla/distilbart-mnli-12-1", 
+			"interests": ["scientific discovery", "microbiology", "archeology"],
+			"detests": ["artificial intelligence", "explicit", "contradiction"]
+		},
+		"generation": {
+			"platform": "transformers",
+			"tokenizer": "gpt2",
+			"model": "gpt2",
+			"args": {
+				"length": "128",
+				"temperature": "0.7",
+				"top_p": "0.9",
+				"top_k": "40",
+				"no_repeat_ngram_size": "2",
+				"num_return_sequences": "1",
+				"no_early_stop": "True"
+			}
 		}
 	},
-	"provider": {
-		"platform": "transformers",
-		"tokenizer": "gpt2",
-		"model": "gpt2",
-		"args": {
-			"length": "128",
-			"temperature": "0.7",
-			"top_p": "0.9",
-			"top_k": "40",
-			"no_repeat_ngram_size": "2",
-			"num_return_sequences": "1",
-			"no_early_stop": "True"
-		}
-	},
-	"classifier": {
-		"model": "valhalla/distilbart-mnli-12-1",
-		"interests": ["scientific discovery", "microbiology", "archeology"],
-		"detests": ["artificial intelligence", "explicit", "contradiction"]
+	"post": {
+		"mode": "unconditional", "model": "",
+		"frequency": "24",
+		"flair": "",
+		"type": "image", "backend": "bing"
 	}
 }
