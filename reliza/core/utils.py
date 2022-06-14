@@ -36,3 +36,9 @@ def cut_trailing_sentence(text):
     text = text[: last_punc + 1]
     text = fix_trailing_quotes(text)
     return text
+
+def strip_negative_keywords(text, keywords):
+	for key in list(keywords):
+		if key in text:
+			text = text.replace(key, keywords.get(key))
+	return text
