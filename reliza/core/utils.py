@@ -18,6 +18,17 @@ def standardize_punctuation(text):
     text = text.replace("”", '"')#todo: regexify
     return text
 
+def remove_garbage(text):
+	text = text.replace("\\n", "")
+	text = text.replace("\t", "")
+	text = text.replace("\r", "")
+	text = text.replace("\b", "")
+	text = text.replace("\f", "")
+	text = text.replace("\v", "")
+	text = text.replace("\u200b", "")
+	text = text.replace("<|endoftext|>", "")
+	return text
+
 def fix_trailing_quotes(text):#optimize
     num_quotes = text.count('"')
     if num_quotes % 2 == 0:
