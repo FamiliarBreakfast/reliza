@@ -50,7 +50,7 @@ Then finally, to run the chatbot, all you would need to do is to run this comman
 
 ## Todo
 
-- ~~better reddit comment parsing (take whole convo into account)
+- ~~better reddit comment parsing (take whole convo into account)~~
 - clean responses **(in progress)**
 - **high priority:** toxic detection
 - tune classifier probabilities
