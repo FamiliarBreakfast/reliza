@@ -2,7 +2,7 @@
 
 Hello! Welcome to the GitHub page for rELIZA!
 
-rELIZA is a customizable framework for creating open-domain chatbots on the fly.
+rELIZA is a tool for creating open-domain chatbots on the fly.
 
 This is a fork of Eliza aimed for use on Reddit. It does **not** require sukima!
 
