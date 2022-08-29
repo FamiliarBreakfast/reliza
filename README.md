@@ -50,15 +50,15 @@ Then finally, to run the chatbot, all you would need to do is to run this comman
 
 ## Todo
 
-- better reddit comment parsing (take whole convo into account)
-- clean responses
-- toxic detection
+- ~~better reddit comment parsing (take whole convo into account)
+- clean responses **(in progress)**
+- **high priority:** toxic detection
 - tune classifier probabilities
-- implement bot postings for reddit
+- implement bots posting to reddit **(in progress)**
 - fix logging (too much garbage)
-- clean up any other garbage
+- clean up any other garbage **(in progress)**
 - parlai support (i wanna add blenderbot)
-- tensorflow support
+- **high priority:** tensorflow support
 - add more options for bots
 
 ### License
