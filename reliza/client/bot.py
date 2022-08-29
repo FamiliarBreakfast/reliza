@@ -1,6 +1,6 @@
 from random import random
-from xml.dom import NotSupportedErr
 import praw
+from core.utils import * # todo: fix
 from core.logging import get_logger
 logger = get_logger(__name__)
 
@@ -25,7 +25,7 @@ class GeneratorHuggingface(Generator):
 		self.tokenizer = AutoTokenizer.from_pretrained(tokenizer)
 		self.model = AutoModelForCausalLM.from_pretrained(model)
 
-	def complete(self, text, args={'max_length': 128, 'temperature': 0.7, 'do_sample': True}):
+	def complete(self, text, args={'max_length': 1024, 'temperature': 1, 'repetition_penalty': 1.2, 'do_sample': True}):
 		input_ids = self.tokenizer(text, return_tensors='pt').input_ids # todo: tensorflow
 		logger.debug('Completing text for string %s...'%text)
 		output = self.model.generate(input_ids, **args)
@@ -33,7 +33,7 @@ class GeneratorHuggingface(Generator):
 		logger.debug('Finished test for string %s: %s'%(text, output))
 		return output
 
-class GeneratorParlai(Generator):
+class GeneratorParlai(Generator): # im not convinced ill ever add this
 	pass # pylance freaks out if i put an exception here
 
 class Classifier():
@@ -105,8 +105,8 @@ class TerminalBot(Bot):
 		while True:
 			try:
 				uinput = input("Write something: ")
-				response = self.model.complete(uinput)
-				print(response)
+				response = self.model.complete(uinput) # generate text
+				print(standardize_punctuation(remove_garbage(fix_trailing_quotes(cut_trailing_sentence(response)))))
 			except KeyboardInterrupt:
 				print('\nBye!')
 				break
@@ -133,8 +133,7 @@ class RedditBot(Bot):
 		self.username = username
 		self.password = password
 
-	def poll(self):
-		reddit = praw.Reddit(
+		self.reddit = praw.Reddit(
 			client_id=self.client_id,
 			client_secret=self.client_secret,
 			password=self.password,
@@ -142,16 +141,49 @@ class RedditBot(Bot):
 			user_agent="rELIZA Reddit Bot"
 		)
 
-		for comment in reddit.subreddit(self.subreddit).stream.comments(skip_existing=True):
-			return comment
+	def body(self, submission):
+		if type(submission) == praw.models.reddit.submission.Submission:
+			return submission.selftext
+		elif type(submission) == praw.models.reddit.comment.Comment:
+			return submission.body
+		else:
+			raise Exception('%s not submission.'%type(submission))
+
+	def iterate_through_comments(self, comment):
+		tree = []
+		i = 0
+		while not comment.is_root:
+			tree.append(comment.body)
+			comment = comment.parent()
+			if i == 8:
+				break
+			i += 1
+		tree.append(comment.body)
+		tree.reverse()
+		return '\n'.join(tree)
 
 	def run(self):
 		while True:
-			comment = self.poll()
-			if comment.body is not None:
-				if self.classifier.classify(comment.body):
-					response = self.model.complete(comment.body)
-					response = response[len(comment.body):]
-					if response is not None:
-						comment.reply(response)
-						logger.info('Replied to comment %s with %s'%(comment.id, response))
+			for comment in self.reddit.subreddit(self.subreddit).stream.comments(skip_existing=True):
+				if not comment.author == self.username: # don't respond to self
+					if comment.body is not None: # don't respond to deleted/empty comments
+						if self.classifier.classify(comment.body): # if comment is positive
+							comment_tree = self.iterate_through_comments(comment) # get comment tree
+							response = self.model.complete(comment_tree+'\n') # generate response
+							response = response[max(len(comment_tree), response.rfind('\n')+1):] # remove comment tree from response
+							response = standardize_punctuation(remove_garbage(fix_trailing_quotes(cut_trailing_sentence(response)))) # fix garbage generations
+							if len(response) > 2:
+								comment.reply(response) # post to reddit
+								logger.info('Replied to comment %s with %s'%(comment.id, response))
+								logger.debug('Comment tree: %s'%comment_tree)
+			for submission in self.reddit.subreddit(self.subreddit).stream.submissions(skip_existing=True):
+				if not submission.author == self.username: # don't respond to self
+					if submission.selftext is not None: # don't respond to deleted/empty submissions
+						if self.classifier.classify(submission.selftext): # if submission is positive
+							response = self.model.complete(submission.selftext+'\n') # generate response
+							response = response[max(len(submission.selftext), response.rfind('\n')+1):] # remove original submission from response
+							response = standardize_punctuation(remove_garbage(fix_trailing_quotes(cut_trailing_sentence(response)))) # fix garbage generations
+							if len(response) > 2:
+								comment.reply(response) # post to reddit
+								logger.info('Replied to submission %s with %s'%(submission.id, response))
+								logger.debug('Submission: %s'%submission.selftext)
