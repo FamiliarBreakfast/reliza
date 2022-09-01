@@ -8,15 +8,6 @@ import argparse
 
 logger = get_logger(__name__)
 
-##Deprecated
-#def get_key(dictionary, key, required=True, default=None):
-#	if key in dictionary:
-#		return dictionary[key]
-#	elif required:
-#		raise Exception(f'{key} is required')
-#	else:
-#		return default
-
 def parse():
 	parser = argparse.ArgumentParser(
 		description="rELIZA is a configurable open-domain chatbot.",

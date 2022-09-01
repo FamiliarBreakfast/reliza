@@ -106,7 +106,10 @@ class TerminalBot(Bot):
 			try:
 				uinput = input("Write something: ")
 				response = self.model.complete(uinput) # generate text
-				print(standardize_punctuation(remove_garbage(fix_trailing_quotes(cut_trailing_sentence(response)))))
+				response = remove_garbage(response) # fix garbage generations
+				response = fix_trailing_quotes(response)
+				response = cut_trailing_sentence(response)
+				print(response)
 			except KeyboardInterrupt:
 				print('\nBye!')
 				break
@@ -160,18 +163,20 @@ class RedditBot(Bot):
 			i += 1
 		tree.append(comment.body)
 		tree.reverse()
-		return '\n'.join(tree)
+		return '\n'.join(tree), i # return comment tree and depth of the tree
 
 	def run(self):
 		while True:
 			for comment in self.reddit.subreddit(self.subreddit).stream.comments(skip_existing=True):
 				if not comment.author == self.username: # don't respond to self
 					if comment.body is not None: # don't respond to deleted/empty comments
+						comment_tree = self.iterate_through_comments(comment) # get comment tree
 						if self.classifier.classify(comment.body): # if comment is positive
-							comment_tree = self.iterate_through_comments(comment) # get comment tree
 							response = self.model.complete(comment_tree+'\n') # generate response
 							response = response[max(len(comment_tree), response.rfind('\n')+1):] # remove comment tree from response
-							response = standardize_punctuation(remove_garbage(fix_trailing_quotes(cut_trailing_sentence(response)))) # fix garbage generations
+							response = remove_garbage(response) # fix garbage generations
+							response = fix_trailing_quotes(response)
+							response = cut_trailing_sentence(response)
 							if len(response) > 2:
 								comment.reply(response) # post to reddit
 								logger.info('Replied to comment %s with %s'%(comment.id, response))
@@ -182,7 +187,9 @@ class RedditBot(Bot):
 						if self.classifier.classify(submission.selftext): # if submission is positive
 							response = self.model.complete(submission.selftext+'\n') # generate response
 							response = response[max(len(submission.selftext), response.rfind('\n')+1):] # remove original submission from response
-							response = standardize_punctuation(remove_garbage(fix_trailing_quotes(cut_trailing_sentence(response)))) # fix garbage generations
+							response = remove_garbage(response) # fix garbage generations
+							response = fix_trailing_quotes(response)
+							response = cut_trailing_sentence(response)
 							if len(response) > 2:
 								comment.reply(response) # post to reddit
 								logger.info('Replied to submission %s with %s'%(submission.id, response))
